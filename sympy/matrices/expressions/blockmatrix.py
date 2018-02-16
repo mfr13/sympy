@@ -108,6 +108,12 @@ class BlockMatrix(MatrixExpr):
         M = M.transpose()
         return BlockMatrix(M)
 
+    def _eval_simplify_blocks(self):
+        matrices = [matrix.expand().simplify() for matrix in self.blocks]
+        # Make a copy
+        M = Matrix(self.blockshape[0], self.blockshape[1], matrices)
+        return BlockMatrix(M)
+
     def _eval_trace(self):
         if self.rowblocksizes == self.colblocksizes:
             return Add(*[Trace(self.blocks[i, i])
@@ -156,6 +162,9 @@ class BlockMatrix(MatrixExpr):
         [0, Y]])
         """
         return self._eval_transpose()
+
+    def simplify_blocks(self):
+        return self._eval_simplify_blocks()
 
     def _entry(self, i, j):
         # Find row entry
